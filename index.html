@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <title>Hear; Here</title>
+    <title>RescuePH</title>
     <link href="https://unpkg.com/leaflet@0.7.7/dist/leaflet.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" rel="stylesheet">
     <link href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
@@ -27,8 +27,8 @@
     <body oncontextmenu="return false">
         <div id="wrapper">
             <div id="header">                
-                <h1>Hear; Here</h1>
-                <h2>Visit <a href="https://mentalhealthawhereness.com">mentalhealthawhereness.com</a></h2>
+                <h1>RescuePH</h1>
+                <h2>Visit <a href="">here for more information</a></h2>
             </div>
             <div id="controls">
                 <input onclick="startEdits()" type="button" value="Listen.">
@@ -40,16 +40,21 @@
                 <p>Mental Health aWHEREness &copy;2019, Sandra Tabinas</p>
             </div>
         </div>
-        <div id="dialog" title="Here.">
+        <div id="dialog" title="Rescue.">
             <form>
                 <fieldset style="border: none;">
                     <ul style="list-style-type: none; padding-left: 0px">
-                        <li><label for="nickname">Nickame</label></li>
-                        <li><input id="nickname" name="nickname" placeholder="Your nickname" size="40" type="text" required></li> 
-                        <li><label for="note">About you + Contact Details</label></li>
-                        <li><textarea cols="40" id="note" name="note" placeholder="Tell us a bit about yourself and why you're willing to listen to someone. Or a short message for someone who may be going through something right now." rows="5"></textarea></li>
-                        <li><label for="hear">Hear</label></li>
-                        <li><textarea cols="40" id="hear" name="hear" placeholder="How can someone reach out to you? (Chat through your public social media account, call or text via a phone number you're willing to share, etc.)" rows="5"></textarea></li>                                                
+                        <li><label for="nickname">Contact Person</label></li>
+                        <li><input id="nickname" name="nickname" placeholder="Ilagay ang nickname ng taong maaaring i-contact" size="40" type="text" required></li> 
+                        <li><label for="note">Mga Detalye</label></li>
+                        <li><textarea cols="40" id="details" name="details" placeholder="Ilan ang mga taong nangangailangan ng resuce? Maaari ring ilagay kung mayroong senior citizen, PWD, sanggol o mga bata, o buntis." rows="5"></textarea></li>
+                        <li><label for="contact_details">Contact Number</label></li>
+                        <li><textarea cols="40" id="contact_details" name="contact_details" placeholder="Numero na maaaring tawagan." rows="5"></textarea></li>
+                        <li><label for="address">Address</label></li>
+                        <li><textarea cols="40" id="address" name="address" placeholder="Eksaktong address" rows="5"></textarea></li> 
+                        <li><label for="rescued">Rescued</label></li>
+                        <li><textarea cols="40" id="rescued" name="rescued" placeholder="Hindi kailangang sagutan ito, maliban na lamang kung ikaw ay responder o bahagi ng mapping team" rows="5"></textarea></li>
+                        <li><textarea cols="40" id="rescuer_org" name="rescuer_org" placeholder="Hindi kailangang sagutan ito, maliban na lamang kung ikaw ay responder o bahagi ng mapping team" rows="5"></textarea></li>                         
                     </ul>
                     <input style="position:absolute; top:-1000px" tabindex="-1" type="submit">
                 </fieldset>
@@ -72,9 +77,9 @@
 
         <script>
             var config = { //TODO: Change to your username, insert function on Carto, and Carto tablename
-                cartoUsername: "anditabinas",
+                cartoUsername: "spatially4u",
                 cartoInsertFunction: "insert_crowd_mapping_data",
-                cartoTablename: "hearhere",
+                cartoTablename: "rescue",
                 mapcenter: [12.85985, 114.03808],
                 drawOptions: {
                     draw: {
@@ -91,7 +96,7 @@
             };
 
             var cartoData = null; //These adds data from Carto using the SQL API, declares variables, and writes the SQL selection query
-            var sqlQuery = "SELECT the_geom, name, note, hear FROM " + config.cartoTablename;
+            var sqlQuery = "SELECT the_geom, name, details, contact_details, address, rescued, rescuer_org FROM " + config.cartoTablename;
             var map = L.map('map', {
                 center: config.mapcenter,
                 zoom: 5
@@ -121,7 +126,7 @@
                 $.getJSON(getData, function(data) {
                     cartoData = L.geoJson(data, {
                         onEachFeature: function(feature, layer) {
-                            layer.bindPopup('<b>Name: <\/b>' + feature.properties.name + '<br>' + '<b>Here: <\/b>' + feature.properties.note + '<br>' + '<b>Hear: <\/b>' + feature.properties.hear + '');
+                            layer.bindPopup('<b>Contact Person: <\/b>' + feature.properties.name + '<br>' + '<b>Mga Detalye: <\/b>' + feature.properties.details + '<br>' + '<b>Contact Number: <\/b>' + feature.properties.contact_details + '<b>Address: <\/b>' + feature.properties.address + '<br>' + '<b>Rescued?: <\/b>' + feature.properties.rescued + '<br>' + '<b>Rescuer: <\/b>' + feature.properties.rescuer_org + '<br>' '');
                         }
                     }).addTo(map);
                 });
@@ -182,16 +187,22 @@
 
             function setData() {
       			var enteredNickname = "'" + JSON.stringify(nickname.value.replace("'", "''")) + "'"
-      			var enteredNote = "'" + JSON.stringify(note.value.replace("'", "''")) + "'"                 
-      			var enteredHear = "'" + JSON.stringify(hear.value.replace("'", "''")) + "'";                      
+      			var enteredDetails = "'" + JSON.stringify(details.value.replace("'", "''")) + "'"
+      			var enteredContact_details = "'" + JSON.stringify(contact_details.value.replace("'", "''")) + "'"      
+      			var enteredAddress = "'" + JSON.stringify(address.value.replace("'", "''")) + "'"
+      			var enteredRescued = "'" + JSON.stringify(rescued.value.replace("'", "''")) + "'"                      
+      			var enteredRescuer_org = "'" + JSON.stringify(rescuer_org.value.replace("'", "''")) + "'";                      
 
                 drawnItems.eachLayer(function(layer) {
                     var drawing = "'" + JSON.stringify(layer.toGeoJSON().geometry) + "'", //Converts the drawing to a GeoJSON
                         sql = "SELECT " + config.cartoInsertFunction + "("; //Constructs the SQL Query from the entered parameters on the dialog/form
                     sql += drawing;
                     sql += "," + enteredNickname;
-                    sql += "," + enteredNote;                    
-                    sql += "," + enteredHear;
+                    sql += "," + enteredDetails;                    
+                    sql += "," + enteredContact_details;
+                    sql += "," + enteredAddress;
+                    sql += "," + enteredRescued;
+                    sql += "," + enteredRescuer_org;                    
                     sql += ");";
                     console.log(drawing);
 
@@ -212,8 +223,11 @@
                     });
                     var newData = layer.toGeoJSON();
                     newData.properties.name = nickname.value;
-                    newData.properties.note = note.value;
-                    newData.properties.hear = hear.value;                    
+                    newData.properties.details = details.value;
+                    newData.properties.contact_details = contact_details.value; 
+                    newData.properties.address = address.value; 
+                    newData.properties.rescued = rescued.value; 
+                    newData.properties.rescuer_org = rescuer_org.value;                     
                     cartoData.addData(newData);
                 });
 
